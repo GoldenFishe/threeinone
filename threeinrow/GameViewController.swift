@@ -1,10 +1,3 @@
-//
-//  GameViewController.swift
-//  threeinrow
-//
-//  Created by Anton on 04.04.2021.
-//
-
 import UIKit
 import SpriteKit
 import GameplayKit
