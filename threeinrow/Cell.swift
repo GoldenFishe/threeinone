@@ -1,26 +1,30 @@
 import SpriteKit
 
-class Cell {
+class Cell: SKShapeNode {
     
-    var node: SKShapeNode?;
     var block: Block?;
-    var position: CGPoint;
-    var size: CGRect;
+    var size: CGRect?;
+    var pos: CGPoint?;
     
     init(size: CGRect, position: CGPoint) {
-        self.node = SKShapeNode(rect: size);
-        self.position = position;
-        self.node?.strokeColor = UIColor.green;
+        super.init();
+        self.pos = position;
+        self.strokeColor = UIColor.white;
         self.size = size;
+        self.path = CGPath(rect: size, transform: nil);
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     public func hasBlock() -> Bool {
         return self.block != nil;
     }
     
-    public func addBlock() {
-        let position = CGPoint(x: self.size.width/2 + self.position.x, y: self.size.height/2 + self.position.y)
-        self.block = Block(color: UIColor.red, position: position);
-        self.node?.scene?.addChild(self.block!);
+    public func addBlock(color: UIColor, type: UIColor) {
+        let position = CGPoint(x: self.size!.width/2 + self.pos!.x, y: self.size!.height/2 + self.pos!.y)
+        self.block = Block(color: color, position: position, type: type);
+        self.scene?.addChild(self.block!);
     }
 }
