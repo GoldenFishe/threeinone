@@ -12,6 +12,7 @@ class Cell: SKShapeNode {
         self.strokeColor = UIColor.white;
         self.size = size;
         self.path = CGPath(rect: size, transform: nil);
+        self.block = nil;
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -22,7 +23,7 @@ class Cell: SKShapeNode {
         return self.block != nil;
     }
     
-    public func addBlock(color: UIColor, type: UIColor) {
+    public func addBlock(color: UIColor, type: Int) {
         let position = CGPoint(x: self.size!.width/2 + self.pos!.x, y: self.size!.height/2 + self.pos!.y)
         self.block = Block(color: color, position: position, type: type);
         self.scene?.addChild(self.block!);
