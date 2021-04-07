@@ -9,6 +9,7 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         self.fillMatrix();
         self.collapse();
+        self.moveBlock();
     }
     
     private func fillMatrix() {
@@ -22,6 +23,7 @@ class GameScene: SKScene {
                 let cell = Cell(size: rect, position: CGPoint(x: row * width, y: col * height));
                 self.addChild(cell);
                 cell.addBlock(color: color, type: type!);
+                cell.block?.addLabel(text: "\(row)/\(col)");
                 matrix[row, col] = cell.block;
             }
         }
@@ -29,43 +31,58 @@ class GameScene: SKScene {
     
     private func collapse() {
         let MIN_LEGNTH = 3;
+        var range: [Block] = [];
         
         for row in 0..<matrix.rows {
+            
+            if (range.count >= MIN_LEGNTH) {
+                for block in range {
+                    block.destroy();
+                }
+            }
+            
             var startRangeCol = 0;
             var endRangeCol = startRangeCol + 1;
-            var range: [Block] = [];
+            range = [];
             
+            print(row);
             while startRangeCol < matrix.cols && endRangeCol < matrix.cols {
                 let startRangeBlock = matrix[row, startRangeCol];
                 let endRangeBlock = matrix[row, endRangeCol];
-                range.append(startRangeBlock!);
+                
+                print("start: \(startRangeCol) end: \(endRangeCol)");
+                print(startRangeBlock?.type == endRangeBlock?.type);
                 
                 if startRangeBlock?.type == endRangeBlock?.type {
-                    print(startRangeBlock?.type == endRangeBlock?.type);
+                    if (range.count == 0) {
+                        range.append(startRangeBlock!);
+                    }
                     range.append(endRangeBlock!);
                     endRangeCol += 1;
                 } else {
+                    print("range: \(range.count)");
                     if (range.count >= MIN_LEGNTH) {
                         for block in range {
-                            // block.removeFromParent();
-                            block.alpha = 0.1
+                            block.destroy();
                         }
                     }
                     range = [];
-                    startRangeCol += 1;
+                    startRangeCol = endRangeCol;
                     endRangeCol += 1;
                 }
-                print("start: \(startRangeCol)");
-                print("end: \(endRangeCol)");
             }
-//            print("row: \(row)");
         }
-//        while currentRow < matrix.rows && currentCol < matrix.cols {
-//            while currentRow < matrix.rows {
-//
-//            }
-//            currentRow += 1;
-//            currentCol += 1;
-//        }
+    }
+    
+    private func moveBlock() {
+        for row in 0..<matrix.rows {
+            for col in 0..<matrix.cols {
+                print(matrix[row, col] == nil)
+            }
+        }
+    }
+    
+    private func addBlocks() {
+        
     }
 }
