@@ -1,14 +1,22 @@
 import SpriteKit
 
+struct MatrixCoordinates {
+    var row: Int;
+    var col: Int;
+}
+
 class Block: SKSpriteNode {
     
-    static public let size = CGSize(width: 20, height: 20);
+    static public let size = CGSize(width: 30, height: 30);
     public var type: Int?;
+    public var matrixCoordinates: MatrixCoordinates?;
     
-    init(color: UIColor, position: CGPoint, type: Int) {
+    init(color: UIColor, position: CGPoint, type: Int, matrixCoordinates: MatrixCoordinates) {
         super.init(texture: nil, color: color, size: Block.size);
         self.position = position;
+        self.matrixCoordinates = matrixCoordinates;
         self.type = type;
+        self.physicsBody = SKPhysicsBody(rectangleOf: Block.size);
     }
     
     required init?(coder aDecoder: NSCoder) {
