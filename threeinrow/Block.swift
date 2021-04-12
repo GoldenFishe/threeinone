@@ -6,17 +6,15 @@ struct MatrixCoordinates {
 }
 
 class Block: SKSpriteNode {
-    
-    static public let size = CGSize(width: 30, height: 30);
+
     public var type: Int?;
     public var matrixCoordinates: MatrixCoordinates?;
     
-    init(color: UIColor, position: CGPoint, type: Int, matrixCoordinates: MatrixCoordinates) {
-        super.init(texture: nil, color: color, size: Block.size);
+    init(color: UIColor, size: CGSize, position: CGPoint, type: Int, matrixCoordinates: MatrixCoordinates) {
+        super.init(texture: nil, color: color, size: size);
         self.position = position;
         self.matrixCoordinates = matrixCoordinates;
         self.type = type;
-        self.physicsBody = SKPhysicsBody(rectangleOf: Block.size);
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -29,6 +27,11 @@ class Block: SKSpriteNode {
         let remove = SKAction.removeFromParent();
         let actions = SKAction.sequence([scaleUp, scaleDown, remove]);
         self.run(actions);
+    }
+    
+    public func moveTo(to: CGPoint) {
+        let moveAction = SKAction.move(to: to, duration: 1);
+        self.run(moveAction);
     }
     
     public func addLabel(text: String) {

@@ -18,4 +18,8 @@ struct Maxtix {
             grid[row][col] = newValue;
         }
     }
+    
+    func getRow(row: Int) -> Array<Block?> {
+        return grid[row];
+    }
 }

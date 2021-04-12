@@ -1,6 +1,6 @@
 import SpriteKit
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene {
     
     private let blockColors = [UIColor.red, UIColor.green, UIColor.blue];
     private let blockTypes = [0, 1, 2];
@@ -13,23 +13,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupWorld() {
-        self.view?.showsPhysics = true;
         self.backgroundColor = .black;
-        self.physicsWorld.contactDelegate = self;
-        self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame);
     }
     
     private func addInitialBlocks() {
         for row in 0..<matrix.rows {
             for col in 0..<matrix.cols {
-                let type = self.blockTypes.randomElement();
-                let color = self.blockColors[type!];
-                let blockPosition = CGPoint(x: row * Int(Block.size.width) + Int(Block.size.width) / 2, y: col * Int(Block.size.height) + Int(Block.size.height) / 2);
-                let matrixCoordinates = MatrixCoordinates(row: row, col: col);
-                let block = Block(color: color, position: blockPosition, type: type!, matrixCoordinates: matrixCoordinates);
-                block.addLabel(text: "\(row)/\(col)");
-                matrix[row, col] = block;
-                self.addChild(block);
+                self.addBlock(row: row, col: col);
             }
         }
     }
@@ -56,8 +46,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 } else {
                     if (range.count >= MIN_LEGNTH) {
                         self.destroyBlocks(blocks: range);
-                        self.moveAdjacentBlocks();
-                        self.fillEmptyCells();
+                        Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(moveAdjacentBlocks), userInfo: range, repeats: false);
                         break searhCycle;
                     }
                     range = [];
@@ -76,60 +65,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
 
+    @objc private func moveAdjacentBlocks(timer: Timer) {
+        let range = timer.userInfo as! [Block];
+        let lastBlockInRange = range.last!;
+        let matrixRow = matrix.getRow(row: lastBlockInRange.matrixCoordinates!.row);
+        var blocksForMove: [Block] = [];
+        for block in matrixRow {
+            if block != nil && (block?.matrixCoordinates!.col)! > lastBlockInRange.matrixCoordinates!.col {
+                blocksForMove.append(block!);
+            }
+        }
+        for block in blocksForMove {
+            matrix[block.matrixCoordinates!.row, block.matrixCoordinates!.col] = nil;
+            let size = Int(self.frame.width) / matrix.rows;
+            let row = block.matrixCoordinates!.row;
+            let col = block.matrixCoordinates!.col - range.count;
+            let blockPosition = CGPoint(x: row * size + size / 2, y: col * size + size / 2);
+            block.moveTo(to: blockPosition);
+            matrix[row, col] = block;
+        }
+        Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(fillEmptyCells), userInfo: nil, repeats: false);
+    }
 
-    private func moveAdjacentBlocks() {
+
+    @objc private func fillEmptyCells() {
         for row in 0..<matrix.rows {
             for col in 0..<matrix.cols {
                 let currentBlock = matrix[row, col];
                 if (currentBlock == nil) {
-
+                    self.addBlock(row: row, col: col);
                 }
             }
         }
-    }
-
-    private func fillEmptyCells() {
-
+        self.findSequence();
     }
     
-    //    private func collapse() {
-    //        let MIN_LEGNTH = 3;
-    //        var range: [Block] = [];
-    //
-    //        for row in 0..<matrix.rows {
-    //
-    //            if (range.count >= MIN_LEGNTH) {
-    //                for block in range {
-    //                    block.destroy();
-    //                }
-    //            }
-    //
-    //            var startRangeCol = 0;
-    //            var endRangeCol = startRangeCol + 1;
-    //            range = [];
-    //
-    //            while startRangeCol < matrix.cols && endRangeCol < matrix.cols {
-    //                let startRangeBlock = matrix[row, startRangeCol];
-    //                let endRangeBlock = matrix[row, endRangeCol];
-    //
-    //                if startRangeBlock?.type == endRangeBlock?.type {
-    //                    if (range.count == 0) {
-    //                        range.append(startRangeBlock!);
-    //                    }
-    //                    range.append(endRangeBlock!);
-    //                    endRangeCol += 1;
-    //                } else {
-    //                    if (range.count >= MIN_LEGNTH) {
-    //                        for block in range {
-    //                            block.destroy();
-    //                        }
-    //                    }
-    //                    range = [];
-    //                    startRangeCol = endRangeCol;
-    //                    endRangeCol += 1;
-    //                }
-    //            }
-    //        }
-    //    }
-    //
+    private func addBlock(row: Int, col: Int) {
+        let size = Int(self.frame.width) / matrix.rows;
+        let blockSize = CGSize(width: size, height: size);
+        let type = self.blockTypes.randomElement();
+        let color = self.blockColors[type!];
+        let blockInitialPosition = CGPoint(x: row * size + size / 2, y: 700);
+        let blockPosition = CGPoint(x: row * size + size / 2, y: col * size + size / 2);
+        let matrixCoordinates = MatrixCoordinates(row: row, col: col);
+        let block = Block(color: color, size: blockSize, position: blockInitialPosition, type: type!, matrixCoordinates: matrixCoordinates);
+        block.addLabel(text: "\(row)/\(col)");
+        block.moveTo(to: blockPosition);
+        matrix[row, col] = block;
+        self.addChild(block);
+    }
 }
